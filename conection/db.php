@@ -2,7 +2,7 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$db   = "pulseras_db"; // El nombre de tu base de datos
+$db   = "pulseras_db"; // Cambia por el nombre real de tu base de datos
 
 $conn = new mysqli($host, $user, $pass, $db);
 
