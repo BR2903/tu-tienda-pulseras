@@ -1,26 +1,40 @@
-# Archivos y carpetas típicos a ignorar en proyectos PHP/XAMPP
+# Ignora dependencias de Composer
 /vendor/
-/node_modules/
-/.env
+
+# Ignora dependencias de Node.js (si usas npm)
+node_modules/
+
+# Archivos de configuración del entorno
+.env
 .env.*
-.idea/
+
+# Configuración de IDEs y editores
 .vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Archivos y carpetas del sistema
 .DS_Store
-*.log
-*.bak
-*.tmp
-*.swp
-*.swo
 Thumbs.db
 
-# Ignora archivos y carpetas de XAMPP/Apache comunes
-*.sql
+# Archivos temporales y de logs
+*.log
+*.tmp
+*.swp
+*.bak
+
+# Bases de datos locales
 *.sqlite
 *.db
+
+# Archivos y carpetas de XAMPP/Apache (no suelen estar en el repo, pero por si acaso)
 xampp/
 phpmyadmin/
 logs/
 
-# Ignora imágenes de ejemplo, si las hay
-*.example.jpg
-*.example.png
+# Archivos SQL de exportación (opcional)
+*.sql
+
+# Otros archivos sensibles o de ejemplo
+*.example.*
