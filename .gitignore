@@ -1,0 +1,26 @@
+# Archivos y carpetas típicos a ignorar en proyectos PHP/XAMPP
+/vendor/
+/node_modules/
+/.env
+.env.*
+.idea/
+.vscode/
+.DS_Store
+*.log
+*.bak
+*.tmp
+*.swp
+*.swo
+Thumbs.db
+
+# Ignora archivos y carpetas de XAMPP/Apache comunes
+*.sql
+*.sqlite
+*.db
+xampp/
+phpmyadmin/
+logs/
+
+# Ignora imágenes de ejemplo, si las hay
+*.example.jpg
+*.example.png
