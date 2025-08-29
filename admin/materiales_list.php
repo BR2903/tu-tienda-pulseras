@@ -1,14 +1,8 @@
 <?php
 session_start();
+require_once 'proteger_admin.php';
 require_once '../conection/db.php';
 
-// Solo admin
-if (!isset($_SESSION['usuario_email']) || $_SESSION['usuario_email'] !== 'amayabryan579@gmail.com') {
-    header('Location: ../index.php');
-    exit;
-}
-
-// Obtener materiales
 $stmt = $conn->prepare("SELECT * FROM materiales ORDER BY id DESC");
 $stmt->execute();
 $materiales = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -47,7 +41,7 @@ $conn->close();
         <?php endforeach ?>
         </tbody>
     </table>
-    <a href="productos_list.php" class="btn btn-secondary">Volver al panel</a>
+    <a href="index.php" class="btn btn-secondary">Volver al panel</a>
 </div>
 </body>
 </html>

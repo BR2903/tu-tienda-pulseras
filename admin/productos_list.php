@@ -1,16 +1,11 @@
 <?php
 session_start();
+require_once 'proteger_admin.php';
 require_once '../conection/db.php';
 
-if (!isset($_SESSION['usuario_email']) || $_SESSION['usuario_email'] !== 'amayabryan579@gmail.com') {
-    header('Location: ../index.php');
-    exit;
-}
-
-// Obtener productos con nombres de categoría y material
-$query = "SELECT productos.*, categorias.nombre AS categoria, materiales.nombre AS material 
-          FROM productos 
-          LEFT JOIN categorias ON productos.categoria_id = categorias.id 
+$query = "SELECT productos.*, categorias.nombre AS categoria, materiales.nombre AS material
+          FROM productos
+          LEFT JOIN categorias ON productos.categoria_id = categorias.id
           LEFT JOIN materiales ON productos.material_id = materiales.id
           ORDER BY productos.id DESC";
 $stmt = $conn->prepare($query);
@@ -55,9 +50,9 @@ $conn->close();
                     <?php endif ?>
                 </td>
                 <td><?= htmlspecialchars($prod['nombre']) ?></td>
-                <td><?= htmlspecialchars($prod['categoria']) ?></td>
-                <td><?= htmlspecialchars($prod['material']) ?></td>
-                <td><?= $prod['precio'] ?></td>
+                <td><?= htmlspecialchars($prod['categoria'] ?? 'Sin categoría') ?></td>
+                <td><?= htmlspecialchars($prod['material'] ?? 'Sin material') ?></td>
+                <td>$<?= number_format($prod['precio'], 2) ?></td>
                 <td><?= $prod['stock'] ?></td>
                 <td>
                     <a href="producto_editar.php?id=<?= $prod['id'] ?>" class="btn btn-warning btn-sm">Editar</a>
@@ -67,9 +62,7 @@ $conn->close();
         <?php endforeach ?>
         </tbody>
     </table>
-    <a href="categorias_list.php" class="btn btn-info">Categorías</a>
-    <a href="materiales_list.php" class="btn btn-info">Materiales</a>
-    <a href="../index.php" class="btn btn-secondary">Volver al inicio</a>
+    <a href="index.php" class="btn btn-secondary">Volver al panel</a>
 </div>
 </body>
 </html>

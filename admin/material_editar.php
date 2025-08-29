@@ -1,11 +1,7 @@
 <?php
 session_start();
+require_once 'proteger_admin.php';
 require_once '../conection/db.php';
-
-if (!isset($_SESSION['usuario_email']) || $_SESSION['usuario_email'] !== 'amayabryan579@gmail.com') {
-    header('Location: ../index.php');
-    exit;
-}
 
 $id = intval($_GET['id'] ?? 0);
 $error = "";
@@ -25,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($nombre === "") {
         $error = "El nombre es obligatorio.";
     } else {
-        $stmt = $conn->prepare("UPDATE materiales SET nombre=? WHERE id=?");
+        $stmt = $conn->prepare("UPDATE materiales SET nombre=? WHERE id=?}");
         $stmt->bind_param("si", $nombre, $id);
         if($stmt->execute()) {
             header('Location: materiales_list.php');
@@ -54,10 +50,10 @@ $conn->close();
     <form method="post">
         <div class="mb-3">
             <label for="nombre" class="form-label">Nombre del material</label>
-            <input type="text" name="nombre" class="form-control" id="nombre" value="<?= htmlspecialchars($material['nombre']) ?>" required>
+            <input type="text" name="nombre" class="form-control" value="<?= htmlspecialchars($material['nombre']) ?>" required autofocus>
         </div>
         <button type="submit" class="btn btn-primary">Actualizar</button>
-        <a href="materiales_list.php" class="btn btn-secondary">Volver</a>
+        <a href="materiales_list.php" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
 </body>

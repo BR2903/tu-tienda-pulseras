@@ -1,13 +1,8 @@
 <?php
 session_start();
+require_once 'proteger_admin.php';
 require_once '../conection/db.php';
 
-if (!isset($_SESSION['usuario_email']) || $_SESSION['usuario_email'] !== 'amayabryan579@gmail.com') {
-    header('Location: ../index.php');
-    exit;
-}
-
-// Obtener categorías y materiales para el select
 $categorias = $conn->query("SELECT id, nombre FROM categorias ORDER BY nombre ASC")->fetch_all(MYSQLI_ASSOC);
 $materiales = $conn->query("SELECT id, nombre FROM materiales ORDER BY nombre ASC")->fetch_all(MYSQLI_ASSOC);
 
@@ -20,7 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $categoria_id = intval($_POST['categoria_id']);
     $material_id = intval($_POST['material_id']);
 
-    // Manejo de imagen
     $imagen_nombre = "";
     if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
         $dir_subida = '../img/';
@@ -29,22 +23,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $archivo_tmp = $_FILES['imagen']['tmp_name'];
         $nombre_original = basename($_FILES['imagen']['name']);
-        $ext = strtolower(pathinfo($nombre_original, PATHINFO_EXTENSION));
-        $permitidas = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        $imagen_nombre = uniqid() . '_' . $nombre_original;
+        $ruta_destino = $dir_subida . $imagen_nombre;
 
-        if (in_array($ext, $permitidas)) {
-            $imagen_nombre = uniqid('img_') . '.' . $ext;
-            move_uploaded_file($archivo_tmp, $dir_subida . $imagen_nombre);
-        } else {
-            $error = "Formato de imagen no permitido.";
+        if (!move_uploaded_file($archivo_tmp, $ruta_destino)) {
+            $error = "Error al subir la imagen.";
         }
     }
 
-    if ($nombre === "" || $precio <= 0 || $stock < 0) {
-        $error = "Nombre, precio (mayor a 0) y stock (0 o más) son obligatorios.";
-    } elseif (!$error) {
+    if ($error === "") {
         $stmt = $conn->prepare("INSERT INTO productos (nombre, descripcion, precio, stock, categoria_id, material_id, imagen) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssdiiis", $nombre, $descripcion, $precio, $stock, $categoria_id, $material_id, $imagen_nombre);
+        $stmt->bind_param("ssdiiss", $nombre, $descripcion, $precio, $stock, $categoria_id, $material_id, $imagen_nombre);
         if($stmt->execute()) {
             header('Location: productos_list.php');
             exit;
@@ -72,15 +61,15 @@ $conn->close();
     <form method="post" enctype="multipart/form-data">
         <div class="mb-3">
             <label for="nombre" class="form-label">Nombre</label>
-            <input type="text" name="nombre" class="form-control" id="nombre" required>
+            <input type="text" name="nombre" class="form-control" required autofocus>
         </div>
         <div class="mb-3">
             <label for="descripcion" class="form-label">Descripción</label>
-            <textarea name="descripcion" class="form-control" id="descripcion"></textarea>
+            <textarea name="descripcion" class="form-control" rows="3" required></textarea>
         </div>
         <div class="mb-3">
             <label for="precio" class="form-label">Precio</label>
-            <input type="number" name="precio" class="form-control" step="0.01" min="0" required>
+            <input type="number" name="precio" class="form-control" step="0.01" required>
         </div>
         <div class="mb-3">
             <label for="stock" class="form-label">Stock</label>
@@ -109,7 +98,7 @@ $conn->close();
             <input type="file" name="imagen" class="form-control" id="imagen" accept="image/*">
         </div>
         <button type="submit" class="btn btn-success">Guardar</button>
-        <a href="productos_list.php" class="btn btn-secondary">Volver</a>
+        <a href="productos_list.php" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
 </body>

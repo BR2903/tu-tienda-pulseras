@@ -1,15 +1,10 @@
 <?php
 session_start();
+require_once 'proteger_admin.php';
 require_once '../conection/db.php';
-
-if (!isset($_SESSION['usuario_email']) || $_SESSION['usuario_email'] !== 'amayabryan579@gmail.com') {
-    header('Location: ../index.php');
-    exit;
-}
 
 $id = intval($_GET['id'] ?? 0);
 
-// Obtener producto actual
 $stmt = $conn->prepare("SELECT * FROM productos WHERE id=?");
 $stmt->bind_param("i", $id);
 $stmt->execute();
@@ -20,7 +15,6 @@ if (!$producto) {
     die("Producto no encontrado.");
 }
 
-// Obtener listas para selects
 $categorias = $conn->query("SELECT id, nombre FROM categorias ORDER BY nombre ASC")->fetch_all(MYSQLI_ASSOC);
 $materiales = $conn->query("SELECT id, nombre FROM materiales ORDER BY nombre ASC")->fetch_all(MYSQLI_ASSOC);
 
@@ -33,34 +27,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $categoria_id = intval($_POST['categoria_id']);
     $material_id = intval($_POST['material_id']);
 
-    // Manejo de imagen
     $imagen_nombre = $producto['imagen'];
     if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
         $dir_subida = '../img/';
-        if (!is_dir($dir_subida)) {
-            mkdir($dir_subida, 0777, true);
-        }
         $archivo_tmp = $_FILES['imagen']['tmp_name'];
         $nombre_original = basename($_FILES['imagen']['name']);
-        $ext = strtolower(pathinfo($nombre_original, PATHINFO_EXTENSION));
-        $permitidas = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-        if (in_array($ext, $permitidas)) {
-            // Borra la anterior si existe
-            if ($producto['imagen'] && file_exists($dir_subida . $producto['imagen'])) {
+        $imagen_nombre_nueva = uniqid() . '_' . $nombre_original;
+        $ruta_destino = $dir_subida . $imagen_nombre_nueva;
+
+        if (move_uploaded_file($archivo_tmp, $ruta_destino)) {
+            if (!empty($producto['imagen']) && file_exists($dir_subida . $producto['imagen'])) {
                 unlink($dir_subida . $producto['imagen']);
             }
-            $imagen_nombre = uniqid('img_') . '.' . $ext;
-            move_uploaded_file($archivo_tmp, $dir_subida . $imagen_nombre);
+            $imagen_nombre = $imagen_nombre_nueva;
         } else {
-            $error = "Formato de imagen no permitido.";
+            $error = "Error al subir la nueva imagen.";
         }
     }
 
-    if ($nombre === "" || $precio <= 0 || $stock < 0) {
-        $error = "Nombre, precio (mayor a 0) y stock (0 o más) son obligatorios.";
-    } elseif (!$error) {
+    if ($error === "") {
         $stmt = $conn->prepare("UPDATE productos SET nombre=?, descripcion=?, precio=?, stock=?, categoria_id=?, material_id=?, imagen=? WHERE id=?");
-        $stmt->bind_param("ssdiiisi", $nombre, $descripcion, $precio, $stock, $categoria_id, $material_id, $imagen_nombre, $id);
+        $stmt->bind_param("ssdiissi", $nombre, $descripcion, $precio, $stock, $categoria_id, $material_id, $imagen_nombre, $id);
         if($stmt->execute()) {
             header('Location: productos_list.php');
             exit;
@@ -88,19 +75,19 @@ $conn->close();
     <form method="post" enctype="multipart/form-data">
         <div class="mb-3">
             <label for="nombre" class="form-label">Nombre</label>
-            <input type="text" name="nombre" class="form-control" value="<?= htmlspecialchars($producto['nombre']) ?>" required>
+            <input type="text" name="nombre" class="form-control" value="<?= htmlspecialchars($producto['nombre']) ?>" required autofocus>
         </div>
         <div class="mb-3">
             <label for="descripcion" class="form-label">Descripción</label>
-            <textarea name="descripcion" class="form-control"><?= htmlspecialchars($producto['descripcion']) ?></textarea>
+            <textarea name="descripcion" class="form-control" rows="3" required><?= htmlspecialchars($producto['descripcion']) ?></textarea>
         </div>
         <div class="mb-3">
             <label for="precio" class="form-label">Precio</label>
-            <input type="number" name="precio" class="form-control" step="0.01" min="0" value="<?= $producto['precio'] ?>" required>
+            <input type="number" name="precio" class="form-control" step="0.01" value="<?= htmlspecialchars($producto['precio']) ?>" required>
         </div>
         <div class="mb-3">
             <label for="stock" class="form-label">Stock</label>
-            <input type="number" name="stock" class="form-control" min="0" value="<?= $producto['stock'] ?>" required>
+            <input type="number" name="stock" class="form-control" min="0" value="<?= htmlspecialchars($producto['stock']) ?>" required>
         </div>
         <div class="mb-3">
             <label for="categoria_id" class="form-label">Categoría</label>

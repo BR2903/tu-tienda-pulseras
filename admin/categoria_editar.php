@@ -1,11 +1,7 @@
 <?php
 session_start();
+require_once 'proteger_admin.php';
 require_once '../conection/db.php';
-
-if (!isset($_SESSION['usuario_email']) || $_SESSION['usuario_email'] !== 'amayabryan579@gmail.com') {
-    header('Location: ../index.php');
-    exit;
-}
 
 $id = intval($_GET['id'] ?? 0);
 $error = "";
@@ -54,10 +50,10 @@ $conn->close();
     <form method="post">
         <div class="mb-3">
             <label for="nombre" class="form-label">Nombre de la categoría</label>
-            <input type="text" name="nombre" class="form-control" id="nombre" value="<?= htmlspecialchars($categoria['nombre']) ?>" required>
+            <input type="text" name="nombre" class="form-control" value="<?= htmlspecialchars($categoria['nombre']) ?>" required autofocus>
         </div>
         <button type="submit" class="btn btn-primary">Actualizar</button>
-        <a href="categorias_list.php" class="btn btn-secondary">Volver</a>
+        <a href="categorias_list.php" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
 </body>

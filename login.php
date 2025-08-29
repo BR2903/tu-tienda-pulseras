@@ -14,14 +14,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $stmt->store_result();
+
         if ($stmt->num_rows > 0) {
             $stmt->bind_result($id, $nombre, $password_hash);
             $stmt->fetch();
+            
             if (password_verify($password, $password_hash)) {
+                // Inicio de sesión exitoso
                 $_SESSION['usuario_id'] = $id;
                 $_SESSION['usuario_nombre'] = $nombre;
                 $_SESSION['usuario_email'] = $email;
-                header('Location: index.php');
+
+                // CAMBIO AQUÍ: Redirige a admin si es el email del administrador
+                $admin_email = 'amayabryan579@gmail.com'; // CAMBIA ESTO por tu email de administrador real
+                if ($email === $admin_email) {
+                    header('Location: admin/');
+                } else {
+                    // Redirige a la página de inicio para usuarios normales
+                    header('Location: index.php');
+                }
                 exit;
             } else {
                 $error = 'Contraseña incorrecta.';
@@ -38,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Iniciar sesión - Pulseras Shop</title>
+    <title>Iniciar sesión</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
